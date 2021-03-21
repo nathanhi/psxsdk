@@ -1,9 +1,9 @@
 # Taken from https://github.com/impiaaa/llvm-project/commit/f2ecffebaa3200703cbf2c60a1d642a5c5254b01
 diff --git a/llvm/lib/Target/Mips/MipsBranchExpansion.cpp b/llvm/lib/Target/Mips/MipsBranchExpansion.cpp
-index 1523a6c020aa..f4bf9b88cd30 100644
+index aa8e298fa759..0ed671bb3657 100644
 --- a/llvm/lib/Target/Mips/MipsBranchExpansion.cpp
 +++ b/llvm/lib/Target/Mips/MipsBranchExpansion.cpp
-@@ -160,6 +160,7 @@ class MipsBranchExpansion : public MachineFunctionPass {
+@@ -160,6 +160,7 @@ private:
    bool buildProperJumpMI(MachineBasicBlock *MBB,
                           MachineBasicBlock::iterator Pos, DebugLoc DL);
    void expandToLongBranch(MBBInfo &Info);
@@ -11,7 +11,7 @@ index 1523a6c020aa..f4bf9b88cd30 100644
    bool handleForbiddenSlot();
    bool handlePossibleLongBranch();
  
-@@ -769,6 +770,46 @@ bool MipsBranchExpansion::handleForbiddenSlot() {
+@@ -778,6 +779,46 @@ bool MipsBranchExpansion::handleForbiddenSlot() {
    return Changed;
  }
  
@@ -58,7 +58,7 @@ index 1523a6c020aa..f4bf9b88cd30 100644
  bool MipsBranchExpansion::handlePossibleLongBranch() {
    if (STI->inMips16Mode() || !STI->enableLongBranchPass())
      return false;
-@@ -848,8 +889,9 @@ bool MipsBranchExpansion::runOnMachineFunction(MachineFunction &MF) {
+@@ -857,8 +898,9 @@ bool MipsBranchExpansion::runOnMachineFunction(MachineFunction &MF) {
    // Run these two at least once
    bool longBranchChanged = handlePossibleLongBranch();
    bool forbiddenSlotChanged = handleForbiddenSlot();
@@ -70,17 +70,17 @@ index 1523a6c020aa..f4bf9b88cd30 100644
    // Then run them alternatively while there are changes
    while (forbiddenSlotChanged) {
 diff --git a/llvm/lib/Target/Mips/MipsInstrInfo.cpp b/llvm/lib/Target/Mips/MipsInstrInfo.cpp
-index fbd56206b249..22fa2281ca26 100644
+index 0c6080258a3a..91cfa89b303c 100644
 --- a/llvm/lib/Target/Mips/MipsInstrInfo.cpp
 +++ b/llvm/lib/Target/Mips/MipsInstrInfo.cpp
-@@ -567,11 +567,39 @@ bool MipsInstrInfo::SafeInForbiddenSlot(const MachineInstr &MI) const {
+@@ -568,11 +568,39 @@ bool MipsInstrInfo::SafeInForbiddenSlot(const MachineInstr &MI) const {
    return (MI.getDesc().TSFlags & MipsII::IsCTI) == 0;
  }
  
 +bool MipsInstrInfo::SafeInLoadDelaySlot(const MachineInstr &MIInSlot, const MachineInstr &LoadMI) const {
 +  if (MIInSlot.isInlineAsm())
 +    return false;
-+  
++
 +  for (const MachineOperand &Op : LoadMI.defs()) {
 +    if (Op.isReg() && MIInSlot.readsRegister(Op.getReg()))
 +      return false;
@@ -114,10 +114,10 @@ index fbd56206b249..22fa2281ca26 100644
  unsigned MipsInstrInfo::getInstSizeInBytes(const MachineInstr &MI) const {
    switch (MI.getOpcode()) {
 diff --git a/llvm/lib/Target/Mips/MipsInstrInfo.h b/llvm/lib/Target/Mips/MipsInstrInfo.h
-index a626c0c3fdb8..fa2fd3b183a0 100644
+index c96ed202df30..8b665e867f5a 100644
 --- a/llvm/lib/Target/Mips/MipsInstrInfo.h
 +++ b/llvm/lib/Target/Mips/MipsInstrInfo.h
-@@ -92,9 +92,15 @@ class MipsInstrInfo : public MipsGenInstrInfo {
+@@ -92,9 +92,15 @@ public:
    /// Predicate to determine if an instruction can go in a forbidden slot.
    bool SafeInForbiddenSlot(const MachineInstr &MI) const;
  
@@ -134,7 +134,7 @@ index a626c0c3fdb8..fa2fd3b183a0 100644
    void insertNoop(MachineBasicBlock &MBB,
                    MachineBasicBlock::iterator MI) const override;
 diff --git a/llvm/lib/Target/Mips/MipsSubtarget.cpp b/llvm/lib/Target/Mips/MipsSubtarget.cpp
-index 472dd72de94b..b860ec98010a 100644
+index ef4191cec3df..915634fec85b 100644
 --- a/llvm/lib/Target/Mips/MipsSubtarget.cpp
 +++ b/llvm/lib/Target/Mips/MipsSubtarget.cpp
 @@ -64,6 +64,7 @@ bool MipsSubtarget::MSAWarningPrinted = false;
@@ -162,4 +162,18 @@ index 472dd72de94b..b860ec98010a 100644
 +  // been tested and currently exists for the integrated assembler only.
    if (MipsArchVersion == Mips5)
      report_fatal_error("Code generation for MIPS-V is not implemented", false);
+ 
+diff --git a/llvm/lib/Target/Mips/MipsSubtarget.h b/llvm/lib/Target/Mips/MipsSubtarget.h
+index 26ee961fc95d..58906d31cf5b 100644
+--- a/llvm/lib/Target/Mips/MipsSubtarget.h
++++ b/llvm/lib/Target/Mips/MipsSubtarget.h
+@@ -62,6 +62,9 @@ class MipsSubtarget : public MipsGenSubtargetInfo {
+   // Used to avoid printing virt warnings multiple times.
+   static bool VirtWarningPrinted;
+ 
++  // Used to avoid printing MIPS-I warnings multiple times.
++  static bool MIPS1WarningPrinted;
++
+   // Mips architecture version
+   MipsArchEnum MipsArchVersion;
  
