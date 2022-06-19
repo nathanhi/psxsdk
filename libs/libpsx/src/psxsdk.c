@@ -19,7 +19,7 @@ unsigned char padread_buf[2][8];
 
 void (*vblank_handler_callback)();
 
-extern int *vblank_handler();
+extern const unsigned int *vblank_handler();
 
 void (*rcnt_handler_callback)();
 
@@ -27,7 +27,7 @@ extern int *rcnt_handler();
 
 unsigned int vblank_queue_buf[4] = {0x0, /* Will contain next interrupt handler in queue */
                                     0x0, /* func1 */
-				    (unsigned int)vblank_handler, /* func2 */
+				    0x0/*vblank_handler*/, /* func2 */
 				    0x0, /* pad */
 				   };
 				    

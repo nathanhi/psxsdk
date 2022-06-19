@@ -1,36 +1,37 @@
 include_guard(GLOBAL)
 
-set(PSX 1)
+set(PSX 1 CACHE INTERNAL "" FORCE)
 
 # Custom system `psx` for CMake
 set(CMAKE_SYSTEM_PROCESSOR "mips")
 set(CMAKE_CROSS_COMPILING TRUE)
 
 # Toolchain prefix
-set(CMAKE_SYSROOT "/opt/psx/toolchain")
+set(CMAKE_SYSROOT "/opt/psx/toolchain" CACHE PATH "sysroot for psxsdk toolchain")
 
 # Tool names
-set(CMAKE_C_COMPILER_INIT "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-gcc")
-set(CMAKE_CXX_COMPILER_INIT "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-cpp")
-set(CMAKE_ADDR2LINE "mipsel-unknown-elf-addr2line")
-set(CMAKE_AR "mipsel-unknown-elf-ar")
-set(CMAKE_LINKER "mipsel-unknown-elf-ld")
-set(CMAKE_NM "mipsel-unknown-elf-nm")
-set(CMAKE_OBJCOPY "mipsel-unknown-elf-objcopy")
-set(CMAKE_OBJDUMP "mipsel-unknown-elf-objdump")
-set(CMAKE_READELF "mipsel-unknown-elf-readelf")
-set(CMAKE_STRIP "mipsel-unknown-elf-strip")
-set(CMAKE_SIZE_UTIL "mipsel-unknown-elf-size")
+set(CMAKE_C_COMPILER "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-gcc" CACHE FILEPATH "C compiler" FORCE)
+set(CMAKE_CXX_COMPILER "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-cpp" CACHE FILEPATH "C++ compiler" FORCE)
+set(CMAKE_ASM_COMPILER "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-gcc" CACHE FILEPATH "assembler" FORCE)
+set(CMAKE_ADDR2LINE "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-addr2line" CACHE FILEPATH "" FORCE)
+set(CMAKE_AR "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-ar" CACHE FILEPATH "" FORCE)
+set(CMAKE_LINKER "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-ld" CACHE FILEPATH "" FORCE)
+set(CMAKE_NM "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-nm" CACHE FILEPATH "" FORCE)
+set(CMAKE_OBJCOPY "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-objcopy" CACHE FILEPATH "" FORCE)
+set(CMAKE_OBJDUMP "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-objdump" CACHE FILEPATH "" FORCE)
+set(CMAKE_READELF "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-readelf" CACHE FILEPATH "" FORCE)
+set(CMAKE_STRIP "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-strip" CACHE FILEPATH "" FORCE)
+set(CMAKE_SIZE_UTIL "${CMAKE_SYSROOT}/bin/mipsel-unknown-elf-size" CACHE FILEPATH "" FORCE)
 
 # Compiler Flags
 SET(PSX_COMMON_C_FLAGS "-fno-builtin -mno-gpopt -nostdlib -msoft-float -march=mips1")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${PSX_COMMON_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PSX_COMMON_C_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${PSX_COMMON_C_FLAGS}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PSX_COMMON_C_FLAGS}" CACHE STRING "" FORCE)
 
 # Specify search path for compiler
-set(CMAKE_C_COMPILER_TARGET "mipsel-unknown-elf")
-set(CMAKE_CXX_COMPILER_TARGET "mipsel-unknown-elf")
-set(CMAKE_SYSTEM_PROGRAM_PATH "${CMAKE_SYSROOT}/bin")
+set(CMAKE_C_COMPILER_TARGET "mipsel-unknown-elf" CACHE FILEPATH "" FORCE)
+set(CMAKE_CXX_COMPILER_TARGET "mipsel-unknown-elf" CACHE FILEPATH "" FORCE)
+set(CMAKE_SYSTEM_PROGRAM_PATH "${CMAKE_SYSROOT}/bin" CACHE PATH "" FORCE)
 
 # Currently no shared library support
 set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS FALSE)

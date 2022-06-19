@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../libmodplay/modplay.h"
+#include <modplay.h>
 #include "adpcm.h"
 
 unsigned char *mod_data;
